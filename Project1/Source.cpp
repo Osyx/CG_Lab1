@@ -11,45 +11,41 @@ const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 SDL_Surface* screen;
 
-void draw();
+void draw(vector<vec3> left, vector<vec3> right);
 void interpolate(float a, float b, vector<float>& result);
 void interpolate(vec3 a, vec3 b, vector<vec3>& result);
+void testInterpolate();
 
 int main(int argc, char* argv[]) {
-	cout << "Using float values:" << endl;
-	vector<float> resultFloat(10);
-	interpolate(5, 14, resultFloat);
-	for (int i = 0; i < resultFloat.size(); ++i)
-		cout << resultFloat[i] << " ";
-	cout << "\n\nUsing glm::vec3:" << endl;;
-	vector<vec3> result(4);
-	vec3 a(1, 4, 9.2);
-	vec3 b(4, 1, 9.8);
-	interpolate(a, b, result);
-	for (int i = 0; i<result.size(); ++i) {
-		cout << "( "
-		    << result[i].x << ", "
-			<< result[i].y << ", "
-			<< result[i].z << " ) ";
-	}
+	testInterpolate();
+
+	vec3 topLeft(1, 0, 0);
+	vec3 topRight(0, 0, 1);
+	vec3 bottomLeft(0, 1, 0);
+	vec3 bottomRight(1, 1, 0);
+	vector<vec3> leftSide(SCREEN_HEIGHT);
+	vector<vec3> rightSide(SCREEN_HEIGHT);
+	interpolate(topLeft, bottomLeft, leftSide);
+	interpolate(topRight, bottomRight, rightSide);
 
 	screen = InitializeSDL(SCREEN_WIDTH, SCREEN_HEIGHT);
 	while (NoQuitMessageSDL()) {
-		draw();
+		draw(leftSide, rightSide);
 	}
 	SDL_SaveBMP(screen, "screenshot.bmp");
 	return 0;
 }
 
-void draw() {
+void draw(vector<vec3> left, vector<vec3> right) {
 
 	SDL_LockSurface(screen);
 
 	for (int y = 0; y < SCREEN_HEIGHT; ++y) {
+		vector<vec3> row(SCREEN_WIDTH);
+		interpolate(left[y], right[y], row);
 
 		for (int x = 0; x < SCREEN_WIDTH; ++x) {
-			vec3 color(1, 0.6, 0.6);
-			PutPixelSDL(screen, x, y, color);
+			PutPixelSDL(screen, x, y, row[x]);
 		}
 	}
 
@@ -86,4 +82,34 @@ void interpolate(vec3 a, vec3 b, vector<vec3>& result) {
 		stepY += stepSizeY;
 		stepZ += stepSizeZ;
 	}
+}
+
+void testInterpolate() {
+	cout << "Using float values:" << endl;
+	vector<float> resultFloat(10);
+	interpolate(5, 14, resultFloat);
+	for (int i = 0; i < resultFloat.size(); ++i)
+		cout << resultFloat[i] << " ";
+	cout << "\n\nUsing glm::vec3:" << endl;;
+	vector<vec3> result(4);
+	vec3 a(1, 4, 9.2);
+	vec3 b(4, 1, 9.8);
+	interpolate(a, b, result);
+	for (int i = 0; i<result.size(); ++i) {
+		cout << "( "
+			<< result[i].x << ", "
+			<< result[i].y << ", "
+			<< result[i].z << " ) ";
+	}
+}
+
+void rainbow() {
+	vec3 topLeft(1, 0, 0);
+	vec3 topRight(0, 0, 1);
+	vec3 bottomLeft(0, 1, 0); 
+	vec3 bottomRight(1, 1, 0);
+	vector<vec3> leftSide(SCREEN_HEIGHT);
+	vector<vec3> rightSide(SCREEN_HEIGHT);
+	interpolate(topLeft, bottomLeft, leftSide);
+	interpolate(topRight, bottomRight, rightSide);
 }
