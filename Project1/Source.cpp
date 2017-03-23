@@ -15,6 +15,8 @@ const int SCREEN_HEIGHT = 480;
 const int F = SCREEN_HEIGHT / 2;
 SDL_Surface* screen;
 vector<vec3> stars(1000);
+int t;
+float V = 0.03;
 
 void update();
 void initStars();
@@ -24,6 +26,7 @@ void interpolate(float a, float b, vector<float>& result);
 void interpolate(vec3 a, vec3 b, vector<vec3>& result);
 void testInterpolate();
 void starsDraw();
+void movement(int s, float dt);
 vec2 conv3Dto2D(vec3 point);
 
 int main(int argc, char* argv[]) {
@@ -140,7 +143,9 @@ void initStars() {
 		}
 		stars[i].z = float(rand()) / float(RAND_MAX);
 	}
+	t = SDL_GetTicks();
 	while (NoQuitMessageSDL()) {
+		update();
 		starsDraw();
 	}
 	SDL_SaveBMP(screen, "stars.bmp");
@@ -166,5 +171,21 @@ void starsDraw() {
 }
 
 void update() {
+	int t2 = SDL_GetTicks();
+	float dt = float(t2 - t);
+	t = t2;
+	for (int s = 0; s < stars.size(); ++s) {
+		movement(s, dt);
+		if (stars[s].z <= 0)
+			stars[s].z += 1;
+		if (stars[s].z > 1)
+			stars[s].z -= 1;
+	}
+}
 
+void movement(int s, float dt) {
+	//stars[s].x = stars[s].x;
+	//stars[s].y = stars[s].y;
+	stars[s].z = stars[s].z - V * dt;
+	cout << dt;
 }
