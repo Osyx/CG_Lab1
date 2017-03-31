@@ -15,8 +15,10 @@ const int SCREEN_HEIGHT = 480;
 const int F = SCREEN_HEIGHT / 2;
 SDL_Surface* screen;
 vector<vec3> stars(1000);
+vector<vec3> oldStars(1000);
+vector<vec3> olderStars;
 int t;
-float V = 0.03;
+float V = 0.01f;
 
 void update();
 void initStars();
@@ -160,8 +162,9 @@ void starsDraw() {
 	SDL_FillRect(screen, 0, 0);
 	if (SDL_MUSTLOCK(screen))
 		SDL_LockSurface(screen);
-	vec3 color(1, 1, 1);
+	//vec3 color(1, 1, 1);
 	for (size_t s = 0; s < stars.size(); ++s) {
+		vec3 color = 0.2f * vec3(1, 1, 1) / (stars[s].z*stars[s].z);
 		vec2 star = conv3Dto2D(stars[s]);
 		PutPixelSDL(screen, (int) star.x, (int) star.y, color);
 	}
@@ -174,7 +177,7 @@ void update() {
 	int t2 = SDL_GetTicks();
 	float dt = float(t2 - t);
 	t = t2;
-	for (int s = 0; s < stars.size(); ++s) {
+	for (size_t s = 0; s < stars.size(); ++s) {
 		movement(s, dt);
 		if (stars[s].z <= 0)
 			stars[s].z += 1;
@@ -187,5 +190,4 @@ void movement(int s, float dt) {
 	//stars[s].x = stars[s].x;
 	//stars[s].y = stars[s].y;
 	stars[s].z = stars[s].z - V * dt;
-	cout << dt;
 }
